@@ -35,12 +35,21 @@ async function run() {
 
 
   const apartmentCollection = client.db("apartmentDB").collection("apartment")
+  const agreementCollection = client.db("apartmentDB").collection("agreement")
 
-
+//apis for apartment related data
   app.get("/apartment",async(req,res)=>{
     const cursor = apartmentCollection.find();
     const result = await cursor.toArray();
     res.send(result);
+  })
+   
+
+  //apis for agreement related data
+  app.post("/agreement",async(req,res)=>{
+    const agreementData = req.body;
+    const result = await agreementCollection.insertOne(agreementData)
+    res.send(result)
   })
 
     // Connect the client to the server	(optional starting in v4.7)
