@@ -37,6 +37,16 @@ async function run() {
   const apartmentCollection = client.db("apartmentDB").collection("apartment")
   const agreementCollection = client.db("apartmentDB").collection("agreement")
 
+  const userCollection = client.db("apartmentDB").collection("user")
+
+//apis for user related information
+app.post("users",async(req,res)=>{
+  const user = req.body;
+  const result = await userCollection.insertOne(user);
+  res.send(result);
+})
+
+
 //apis for apartment related data
   app.get("/apartment",async(req,res)=>{
     const cursor = apartmentCollection.find();
@@ -46,6 +56,12 @@ async function run() {
    
 
   //apis for agreement related data
+  app.get("/agreement",async(req,res)=>{
+    const email = req.query.email;
+    const query = {email:email};
+    const cursor =await agreementCollection.find(query).toArray();
+    res.send(cursor);
+  })
   app.post("/agreement",async(req,res)=>{
     const agreementData = req.body;
     const result = await agreementCollection.insertOne(agreementData)
