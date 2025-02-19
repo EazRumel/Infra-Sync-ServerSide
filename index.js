@@ -40,8 +40,13 @@ async function run() {
   const userCollection = client.db("apartmentDB").collection("user")
 
 //apis for user related information
-app.post("users",async(req,res)=>{
+app.post("/users",async(req,res)=>{
   const user = req.body;
+  const query = {email:user.email};
+  const existingUser = await userCollection.findOne(query)
+  if(existingUser){
+    return res.send({message:"User Already Exists",insertedId:null})
+  }
   const result = await userCollection.insertOne(user);
   res.send(result);
 })
