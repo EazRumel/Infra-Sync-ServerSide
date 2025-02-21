@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.t89ec.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 app.get("/",(req,res) =>{
@@ -40,10 +40,6 @@ async function run() {
   const userCollection = client.db("apartmentDB").collection("user")
 
 //apis for user related information
-app.get("/users",async(req,res)=>{
-  const cursor = await userCollection.find().toArray();
-   res.send(cursor);
-})
 
 app.post("/users",async(req,res)=>{
   const user = req.body;
@@ -53,6 +49,21 @@ app.post("/users",async(req,res)=>{
     return res.send({message:"User Already Exists",insertedId:null})
   }
   const result = await userCollection.insertOne(user);
+  res.send(result);
+})
+
+
+
+app.get("/users",async(req,res)=>{
+  const cursor = await userCollection.find().toArray();
+   res.send(cursor);
+})
+
+
+app.delete("/users/:id",async(req,res)=> {
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)};
+  const result = await userCollection.deleteOne(query);
   res.send(result);
 })
 
