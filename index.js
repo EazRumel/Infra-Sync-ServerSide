@@ -40,6 +40,11 @@ async function run() {
   const userCollection = client.db("apartmentDB").collection("user")
 
 //apis for user related information
+app.get("/users",async(req,res)=>{
+  const cursor = await userCollection.find().toArray();
+   res.send(cursor);
+})
+
 app.post("/users",async(req,res)=>{
   const user = req.body;
   const query = {email:user.email};
