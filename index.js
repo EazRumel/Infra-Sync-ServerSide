@@ -43,8 +43,9 @@ async function run() {
 
 app.post("/users",async(req,res)=>{
   const user = req.body;
-  const query = {email:user.email};
+  const query = {userEmail:user.userEmail};
   const existingUser = await userCollection.findOne(query)
+  // console.log(query)
   if(existingUser){
     return res.send({message:"User Already Exists",insertedId:null})
   }
@@ -59,6 +60,18 @@ app.get("/users",async(req,res)=>{
    res.send(cursor);
 })
 
+
+app.patch("/users/member/:id",async(req,res)=> {
+  const id = req.params.id;
+  const filter = {_id:new ObjectId(id)};
+  const updatedDoc = {
+    $set:{
+      role:"member"
+    }
+  }
+  const result = await userCollection.updateOne(filter,updatedDoc);
+  res.send(result);
+})
 
 app.delete("/users/:id",async(req,res)=> {
   const id = req.params.id;
@@ -79,14 +92,22 @@ app.delete("/users/:id",async(req,res)=> {
   //apis for agreement related data
   app.get("/agreement",async(req,res)=>{
     const email = req.query.email;
-    const query = {email:email};
-    const cursor =await agreementCollection.find(query).toArray();
+    // console.log(email);
+    const query = {userEmail:email};
+    const cursor = await agreementCollection.find(query).toArray();
     res.send(cursor);
   })
   app.post("/agreement",async(req,res)=>{
     const agreementData = req.body;
     const result = await agreementCollection.insertOne(agreementData)
-    res.send(result)
+    res.send(result);
+  })
+
+  app.delete("/agreement/:id",async(req,res)=>{
+    const id = req.params.id;
+    const query = {_id:new ObjectId(id)};
+    const result = await agreementCollection.deleteOne(query);
+    res.send(result);
   })
 
     // Connect the client to the server	(optional starting in v4.7)
