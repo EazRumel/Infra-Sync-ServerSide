@@ -40,6 +40,10 @@ async function run() {
     const userCollection = client.db("apartmentDB").collection("user")
     const couponCollection = client.db("apartmentDB").collection("coupons")
 
+
+
+
+
     //apis for user related information
 
     app.post("/users", async (req, res) => {
@@ -82,6 +86,10 @@ async function run() {
     })
 
 
+
+    
+
+
     //apis for apartment related data
     app.get("/apartment", async (req, res) => {
       const cursor = apartmentCollection.find();
@@ -90,14 +98,22 @@ async function run() {
     })
 
 
+
+
+
+
+
     //apis for agreement related data
     app.get("/agreement", async (req, res) => {
-      const email = req.query.email;
-      // console.log(email);
-      const query = { userEmail: email };
-      const cursor = await agreementCollection.find(query).toArray();
+      // const email = req.query.email;
+       // console.log(email);
+      // const query = { userEmail: email };
+      // const cursor = await agreementCollection.find(cursor).toArray(); //if use query then it will get replaced with cursor to query
+      const cursor =await agreementCollection.find().toArray();
       res.send(cursor);
     })
+
+    
     app.post("/agreement", async (req, res) => {
       const agreementData = req.body;
       const result = await agreementCollection.insertOne(agreementData)
@@ -110,11 +126,26 @@ async function run() {
       const result = await agreementCollection.deleteOne(query);
       res.send(result);
     })
+
+
+
+
     //apis for coupon related data
     app.get("/coupons",async(req,res)=>{
       const coupon = await couponCollection.find().toArray();
       res.send(coupon);
     })
+    app.post("/coupons",async(req,res)=>{
+      const coupon = req.body;
+      const result = await couponCollection.insertOne(coupon);
+      res.send(result);
+    })
+
+
+
+
+
+
 
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
