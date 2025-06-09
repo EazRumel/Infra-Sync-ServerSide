@@ -1,7 +1,7 @@
 const express = require('express');
 require('dotenv').config()
 const app = express();
-const cors = require('cors')
+const cors = require('cors') //cross origin resource sharing
 const port = process.env.PORT || 3000;
 
 
@@ -15,7 +15,6 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 app.get("/", (req, res) => {
   res.send("Infra Sync Is Running For Your Service")
 })
-
 
 
 
@@ -64,6 +63,18 @@ async function run() {
       const cursor = await userCollection.find().toArray();
       res.send(cursor);
     })
+
+   app.patch("/user/admin/:id",async(req,res)=>{
+    const id = req.params.id;
+    const filter = {id: new ObjectId(id)}
+    const updatedDoc = {
+      $set:{
+        role:"admin"
+      }
+    }
+    const result = await userCollection.updateOne(filter,updatedDoc)
+    res.send(result);
+   })
 
 
     app.patch("/users/member/:id", async (req, res) => {
