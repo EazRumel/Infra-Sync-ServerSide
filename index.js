@@ -1,6 +1,7 @@
 const express = require('express');
 require('dotenv').config()
 const app = express();
+const jwt = require('jsonwebtoken')
 const cors = require('cors') //cross origin resource sharing
 const port = process.env.PORT || 3000;
 
@@ -40,6 +41,16 @@ async function run() {
     const couponCollection = client.db("apartmentDB").collection("coupons")
 
 
+    //api for jwt token generation and usage
+    app.post("/jwt",async(req,res)=>{
+      const user = req.body;
+      const token = jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{
+        expiresIn:"1h"
+      })
+      res.send({token});
+    })
+
+
 
 
 
@@ -64,17 +75,17 @@ async function run() {
       res.send(cursor);
     })
 
-   app.patch("/user/admin/:id",async(req,res)=>{
-    const id = req.params.id;
-    const filter = {id: new ObjectId(id)}
-    const updatedDoc = {
-      $set:{
-        role:"admin"
-      }
-    }
-    const result = await userCollection.updateOne(filter,updatedDoc)
-    res.send(result);
-   })
+  //  app.patch("/users/admin/:id",async(req,res)=>{
+  //   const id = req.params.id;
+  //   const filter = {id: new ObjectId(id)}
+  //   const updatedDoc = {
+  //     $set:{
+  //       role:"admin"
+  //     }
+  //   }
+  //   const result = await userCollection.updateOne(filter,updatedDoc)
+  //   res.send(result);
+  //  })
 
 
     app.patch("/users/member/:id", async (req, res) => {
