@@ -42,15 +42,29 @@ async function run() {
 
 
     //api for jwt token generation and usage
-    app.post("/jwt",async(req,res)=>{
+    app.post("/jwt", async (req, res) => {
       const user = req.body;
-      const token = jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{
-        expiresIn:"1h"
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h"
       })
-      res.send({token});
+      res.send({ token });
     })
-
-
+    //middle ware to use to convey jwt
+    const verifyToken = (req, res, next) => {
+      console.log(req.headers.authorization)
+      if(!req.headers.authorization){
+        return res.status(401).send({message:"forbidden access"})
+      }
+     const token = req.headers.authorization.split(" ")[1]
+    jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,(error,decoded)=>{
+      if(error){
+        return res.status(401).send({message:"forbidden access"})
+      }
+      req.decoded = decoded; //decoded encodes the decodes system,when it's decoded then it will got to the next() and let it go thorough
+      next();
+    })
+      // next(); //after the work is done properly then the next() parameter will work
+    }
 
 
 
@@ -70,22 +84,22 @@ async function run() {
 
 
 
-    app.get("/users", async (req, res) => {
+    app.get("/users", verifyToken, async (req, res) => {
       const cursor = await userCollection.find().toArray();
       res.send(cursor);
     })
 
-  //  app.patch("/users/admin/:id",async(req,res)=>{
-  //   const id = req.params.id;
-  //   const filter = {id: new ObjectId(id)}
-  //   const updatedDoc = {
-  //     $set:{
-  //       role:"admin"
-  //     }
-  //   }
-  //   const result = await userCollection.updateOne(filter,updatedDoc)
-  //   res.send(result);
-  //  })
+    //  app.patch("/users/admin/:id",async(req,res)=>{
+    //   const id = req.params.id;
+    //   const filter = {id: new ObjectId(id)}
+    //   const updatedDoc = {
+    //     $set:{
+    //       role:"admin"
+    //     }
+    //   }
+    //   const result = await userCollection.updateOne(filter,updatedDoc)
+    //   res.send(result);
+    //  })
 
 
     app.patch("/users/member/:id", async (req, res) => {
@@ -109,7 +123,7 @@ async function run() {
 
 
 
-    
+
 
 
     //apis for apartment related data
@@ -128,14 +142,14 @@ async function run() {
     //apis for agreement related data
     app.get("/agreement", async (req, res) => {
       // const email = req.query.email;
-       // console.log(email);
+      // console.log(email);
       // const query = { userEmail: email };
       // const cursor = await agreementCollection.find(cursor).toArray(); //if use query then it will get replaced with cursor to query
-      const cursor =await agreementCollection.find().toArray();
+      const cursor = await agreementCollection.find().toArray();
       res.send(cursor);
     })
 
-    
+
     app.post("/agreement", async (req, res) => {
       const agreementData = req.body;
       const result = await agreementCollection.insertOne(agreementData)
@@ -153,11 +167,11 @@ async function run() {
 
 
     //apis for coupon related data
-    app.get("/coupons",async(req,res)=>{
+    app.get("/coupons", async (req, res) => {
       const coupon = await couponCollection.find().toArray();
       res.send(coupon);
     })
-    app.post("/coupons",async(req,res)=>{
+    app.post("/coupons", async (req, res) => {
       const coupon = req.body;
       const result = await couponCollection.insertOne(coupon);
       res.send(result);
