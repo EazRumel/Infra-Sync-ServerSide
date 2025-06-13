@@ -11,6 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { access } = require('fs');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.t89ec.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 app.get("/", (req, res) => {
@@ -80,6 +81,34 @@ async function run() {
       }
       const result = await userCollection.insertOne(user);
       res.send(result);
+    })
+
+    //api for only admin access
+    app.get("/users/admin:email",verifyToken,async(req,res)=>{
+     const email = req.params.email;
+     if(email !== req.decoded.email){
+      res.status(403).send({message:"unauthorized access"})
+     }
+     const query = {email:user.userEmail}
+     const user = await userCollection.findOne(query)
+     if(user){
+      admin = user?.role === "admin"
+     }
+     res.send({admin})
+    })
+
+    //api for only members access
+    app.get("/users/member/:email",verifyToken,async(req,res)=>{
+      const email = req.params.email;
+      if(email !== req.decoded.email){
+        res.status(403).send({message:"unauthorized access"})
+      }
+      const query = {email:user.userEmail}
+      const user = await userCollection.findOne(query)
+      if(user){
+        member = user?.role === "member"
+      }
+      res.send({member})
     })
 
 
